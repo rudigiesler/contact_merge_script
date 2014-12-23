@@ -1,32 +1,25 @@
 from collections import defaultdict
 import logging
+import json
 
 import app_settings as settings
-from go_http.contacts import ContactsApiClient
 
 logging.basicConfig(
     filename=settings.LOG_FILE, level=settings.LOGGING_LEVEL)
 
-try:
-    api = ContactsApiClient(settings.AUTH_TOKEN, settings.API_URL)
-    logging.info('Created API successfully')
-except Exception as e:
-    logging.error('Error creating API')
-    logging.debug('API error: %s' % e.message)
-    raise e
-
 grouped_contacts = defaultdict(list)
 
-for contact in api.contacts():
-    try:
-        msisdn = contact['msisdn']
-        grouped_contacts[msisdn].append(contact)
-        logging.info('Fetched contact with msisdn %s' % msisdn)
-    except Exception as e:
-        logging.warning('Error in getting contact')
-        logging.debug('Error: %s' % e.message)
-        logging.debug('Contact: %s' % contact)
-
+with open(settings.CONTACTS_FILENAME) as contacts:
+    for contact in contacts:
+        contact = json.loads(contact)
+        try:
+            msisdn = contact['msisdn']
+            grouped_contacts[msisdn].append(contact)
+            logging.info('Fetched contact with msisdn %s' % msisdn)
+        except Exception as e:
+            logging.warning('Error in getting contact')
+            logging.debug('Error: %s' % e.message)
+            logging.debug('Contact: %s' % contact)
 
 def get_first_value(items, key):
     for item in items:
@@ -58,6 +51,7 @@ def get_keys(items):
             keys.append(key)
     return keys
 
+processed_contacts = open(settings.PROCESSED_CONTACTS_FILENAME, 'w')
 for msisdn, contacts in grouped_contacts.iteritems():
     if len(contacts) <= 1:
         continue
@@ -78,21 +72,8 @@ for msisdn, contacts in grouped_contacts.iteritems():
         logging.debug('Contacts: %s' % contacts)
         logging.debug('Error: %s' % e.message)
         continue  # Don't create new contact
-    # Create new contact
-    try:
-        api.create_contact(new_contact)
-        logging.info('Created contact with msisdn %s', new_contact['msisdn'])
-    except Exception as e:
-        logging.error('Error creating new contact')
-        logging.debug('Contact: %s' % new_contact)
-        logging.debug('Error: %s' % e.message)
-        continue  # Don't delete the contacts
-    # Delete old contacts
-    for key in old_keys:
-        try:
-            api.delete_contact(key)
-            logging.info('Deleted contact with key %s' % key)
-        except Exception as e:
-            logging.warning('Error deleting contact')
-            logging.debug('Contact key: %s' % key)
-            logging.debug('Error: %s' % e.message)
+    # Save new contacts
+    result = {'old_contacts': contacts, 'new_contact': new_contact}
+    processed_contacts.write(json.dumps(result))
+
+processed_contacts.close()
