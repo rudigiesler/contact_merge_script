@@ -4,7 +4,8 @@ import logging
 import app_settings as settings
 from go_http.contacts import ContactsApiClient
 
-logging.basicConfig(filename='contact_merge_script.log', level=logging.DEBUG)
+logging.basicConfig(
+    filename=settings.LOG_FILE, level=settings.LOGGING_LEVEL)
 
 try:
     api = ContactsApiClient(settings.AUTH_TOKEN, settings.API_URL)
