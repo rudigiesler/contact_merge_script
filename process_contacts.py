@@ -21,6 +21,7 @@ with open(settings.CONTACTS_FILENAME) as contacts:
             logging.debug('Error: %s' % e.message)
             logging.debug('Contact: %s' % contact)
 
+
 def get_first_value(items, key):
     for item in items:
         value = item.get(key, None)
@@ -42,15 +43,6 @@ def combine_set_values(items, key):
     result.discard(None)
     return list(result)
 
-
-def get_keys(items):
-    keys = []
-    for item in items:
-        key = item.get('key', None)
-        if key is not None:
-            keys.append(key)
-    return keys
-
 processed_contacts = open(settings.PROCESSED_CONTACTS_FILENAME, 'w')
 for msisdn, contacts in grouped_contacts.iteritems():
     if len(contacts) <= 1:
@@ -65,7 +57,6 @@ for msisdn, contacts in grouped_contacts.iteritems():
             new_contact[field] = combine_dictionary_values(contacts, field)
         for field in settings.LIST_FIELDS:
             new_contact[field] = combine_set_values(contacts, field)
-        old_keys = get_keys(contacts)
         logging.info('Processed contact with MSISDN %s' % msisdn)
     except Exception as e:
         logging.error('Error processing contacts')
