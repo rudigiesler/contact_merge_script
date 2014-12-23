@@ -42,11 +42,10 @@ def combine_dictionary_values(items, key):
     return result
 
 
-def combine_group_values(items, key):
-    result = []
-    for item in items:
-        result.extend(item.get(key, []))
-    return result
+def combine_set_values(items, key):
+    result = set(item.get(key, None) for item in items)
+    result.discard(None)
+    return list(result)
 
 
 def get_keys(items):
@@ -68,6 +67,8 @@ for msisdn, contacts in grouped_contacts.iteritems():
             new_contact[field] = get_first_value(contacts, field)
         for field in settings.DICT_FIELDS:
             new_contact[field] = combine_dictionary_values(contacts, field)
+        for field in settings.LIST_FIELDS:
+            new_contact[field] = combine_set_values(contacts, field)
         old_keys = get_keys(contacts)
         logging.info('Processed contact with MSISDN %s' % msisdn)
     except Exception as e:
