@@ -10,3 +10,6 @@ DICT_FIELDS = getattr(settings, 'DICT_FIELDS', ['extra', 'subscription'])
 LIST_FIELDS = getattr(settings, 'LIST_FIELDS', ['groups'])
 LOGGING_LEVEL = getattr(settings, 'LOGGING_LEVEL', logging.WARNING)
 LOG_FILE = getattr(settings, 'LOG_FILE', 'contact_merge_script.log')
+CONTACTS_FILENAME = getattr(settings, 'CONTACTS_FILENAME', 'contacts.json')
+PROCESSED_CONTACTS_FILENAME = getattr(
+    settings, 'PROCESSED_CONTACTS_FILENAME', 'processed_contacts.json')

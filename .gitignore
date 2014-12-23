@@ -1,3 +1,4 @@
 settings.py
 *.pyc
 contact_merge_script.log
+*.json
