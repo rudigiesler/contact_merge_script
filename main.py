@@ -43,7 +43,9 @@ def combine_dictionary_values(items, key):
 
 
 def combine_set_values(items, key):
-    result = set(item.get(key, None) for item in items)
+    result = set()
+    for item in items:
+        result |= set(item.get(key, []))
     result.discard(None)
     return list(result)
 
