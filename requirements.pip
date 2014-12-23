@@ -1,1 +1,1 @@
-go-http>=0.2.2
+git+https://github.com/praekelt/go-http-api.git#develop
