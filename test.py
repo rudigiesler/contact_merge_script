@@ -1,6 +1,7 @@
 import unittest
-from main import (
-    get_first_value, combine_dictionary_values, combine_set_values, get_keys)
+from process_contacts import (
+    get_first_value, combine_dictionary_values, combine_set_values)
+from upload_contacts import get_keys
 
 
 class TestFunctions(unittest.TestCase):
