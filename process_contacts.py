@@ -67,5 +67,6 @@ for msisdn, contacts in grouped_contacts.iteritems():
     # Save new contacts
     result = {'old_contacts': contacts, 'new_contact': new_contact}
     processed_contacts.write(json.dumps(result))
+    processed_contacts.write('\n')
 
 processed_contacts.close()
