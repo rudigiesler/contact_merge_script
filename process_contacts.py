@@ -51,6 +51,7 @@ for msisdn, contacts in grouped_contacts.iteritems():
     new_contact = {}
     old_keys = []
     try:
+        contacts.sort(key=lambda c: c.get('created_at'))
         for field in settings.FIELDS:
             new_contact[field] = get_first_value(contacts, field)
         for field in settings.DICT_FIELDS:
