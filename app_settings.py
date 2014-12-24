@@ -1,7 +1,7 @@
 import settings
 import logging
 
-API_URL = getattr(settings, 'API_URL', 'go.vumi.org/api/v1/go')
+API_URL = getattr(settings, 'API_URL', 'http://go.vumi.org/api/v1/go')
 AUTH_TOKEN = getattr(settings, 'AUTH_TOKEN', None)
 FIELDS = getattr(settings, 'FIELDS', [
     'name', 'surname', 'email_address', 'dob', 'created_at', 'twitter_handle',
