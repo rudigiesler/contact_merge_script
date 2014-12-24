@@ -38,9 +38,6 @@ with open(settings.PROCESSED_CONTACTS_FILENAME, 'r') as processed:
                 logging.info('Fetched contact with key %s' % key)
                 logging.debug('Contact: %s')
             except Exception as e:
-                logging.error('Error fetching contact')
-                logging.debug('Contact key: %s' % key)
-                logging.debug('Error: %s' % e.message)
                 continue
             try:
                 if DELETE_CONTACTS:
