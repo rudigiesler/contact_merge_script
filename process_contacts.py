@@ -1,3 +1,4 @@
+import argparse
 from collections import defaultdict
 import logging
 import json
@@ -7,10 +8,25 @@ import app_settings as settings
 logging.basicConfig(
     filename=settings.LOG_FILE, level=settings.LOGGING_LEVEL)
 
-grouped_contacts = defaultdict(list)
+parser = argparse.ArgumentParser(description="Deduplicate contacts")
+parser.add_argument(
+    'contacts_filename', type=str, nargs=1,
+    help='Filename to find the duplicate contacts.')
+parser.add_argument(
+    'results_filename', type=str, nargs=1,
+    help='Filename to store the results of the duplicate contacts.')
+parser.add_argument(
+    '--append', '-a', dest='file_mode', default='w', action='store_const',
+    const='a', help='Append processed contacts to the file instead of the' +
+    ' default overwrite')
+args = parser.parse_args()
 
-with open(settings.CONTACTS_FILENAME) as contacts:
+grouped_contacts = defaultdict(list)
+contact_count = 0
+
+with open(args.contacts_filename[0]) as contacts:
     for contact in contacts:
+        contact_count += 1
         contact = json.loads(contact)
         try:
             msisdn = contact['msisdn']
@@ -43,7 +59,7 @@ def combine_set_values(items, key):
     result.discard(None)
     return list(result)
 
-processed_contacts = open(settings.PROCESSED_CONTACTS_FILENAME, 'w')
+processed_contacts = open(args.results_filename[0], args.file_mode)
 for msisdn, contacts in grouped_contacts.iteritems():
     if len(contacts) <= 1:
         continue
@@ -70,3 +86,10 @@ for msisdn, contacts in grouped_contacts.iteritems():
     processed_contacts.write('\n')
 
 processed_contacts.close()
+
+print('Total contacts: %d' % contact_count)
+print('Unique contacts: %d' % len(grouped_contacts))
+print('Number of contacts per unique contact: %f' % (
+    1.0 * contact_count / len(grouped_contacts)))
+print('Stored duplicate contact results from %s in %s' % (
+    args.contacts_filename[0], args.results_filename[0]))

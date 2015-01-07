@@ -10,7 +10,7 @@ logging.basicConfig(
 
 parser = argparse.ArgumentParser(description="Download contacts")
 parser.add_argument(
-    'filename', metavar='filename', type=str, nargs=1,
+    'filename', type=str, nargs=1,
     help='Filename to store the downloaded contacts in.')
 parser.add_argument(
     '--append', '-a', dest='file_mode', default='w', action='store_const',
