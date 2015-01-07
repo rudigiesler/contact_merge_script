@@ -1,3 +1,4 @@
+import argparse
 import logging
 import json
 
@@ -6,6 +7,16 @@ import app_settings as settings
 
 logging.basicConfig(
     filename=settings.LOG_FILE, level=settings.LOGGING_LEVEL)
+
+parser = argparse.ArgumentParser(description="Download contacts")
+parser.add_argument(
+    'filename', metavar='filename', type=str, nargs=1,
+    help='Filename to store the downloaded contacts in.')
+parser.add_argument(
+    '--append', '-a', dest='file_mode', default='w', action='store_const',
+    const='a', help='Append downloaded contacts to the file instead of the' +
+    ' default overwrite')
+args = parser.parse_args()
 
 try:
     api = ContactsApiClient(settings.AUTH_TOKEN, settings.API_URL)
@@ -17,7 +28,7 @@ except Exception as e:
 
 f = None
 try:
-    f = open(settings.CONTACTS_FILENAME, 'w')
+    f = open(args.filename[0], args.file_mode)
 except Exception as e:
     logging.error('Error creating file')
     logging.debug('File error: %s' % e.message)
@@ -32,3 +43,5 @@ for contact in api.contacts():
         logging.debug('Error: %s' % e.message)
         logging.debug('Contact: %s' % contact)
 f.close()
+
+print 'Contacts downloaded to %s' % args.filename[0]
