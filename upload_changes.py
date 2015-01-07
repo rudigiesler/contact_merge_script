@@ -1,3 +1,4 @@
+import argparse
 import logging
 import json
 
@@ -6,6 +7,12 @@ import app_settings as settings
 
 logging.basicConfig(
     filename=settings.LOG_FILE, level=settings.LOGGING_LEVEL)
+
+parser = argparse.ArgumentParser(description="Upload contacts")
+parser.add_argument(
+    'filename', metavar='filename', type=str, nargs=1,
+    help='Filename to find the duplicate contact results.')
+args = parser.parse_args()
 
 
 def get_keys(items):
@@ -24,7 +31,7 @@ except Exception as e:
     logging.debug('API error: %s' % e.message)
     raise e
 
-with open(settings.PROCESSED_CONTACTS_FILENAME, 'r') as processed:
+with open(args.filename[0], 'r') as processed:
     for item in processed:
         item = json.loads(item)
         new_contact = item.get('new_contact')
@@ -48,3 +55,5 @@ with open(settings.PROCESSED_CONTACTS_FILENAME, 'r') as processed:
                 logging.warning('Error deleting contact')
                 logging.debug('Contact key: %s' % key)
                 logging.debug('Error: %s' % e.message)
+
+print('Uploaded changes from %s' % args.filename[0])
