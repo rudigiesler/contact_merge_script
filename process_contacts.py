@@ -19,19 +19,24 @@ parser.add_argument(
     '--append', '-a', dest='file_mode', default='w', action='store_const',
     const='a', help='Append processed contacts to the file instead of the' +
     ' default overwrite')
+parser.add_argument(
+    '--merge-on', '-m', type=str, dest='merge_field', default='msisdn',
+    help='Contact field used to detect duplicate contacts')
 args = parser.parse_args()
 
 grouped_contacts = defaultdict(list)
 contact_count = 0
+merge_field = args.merge_field
 
 with open(args.contacts_filename[0]) as contacts:
     for contact in contacts:
         contact_count += 1
         contact = json.loads(contact)
         try:
-            msisdn = contact['msisdn']
-            grouped_contacts[msisdn].append(contact)
-            logging.info('Fetched contact with msisdn %s' % msisdn)
+            group_key = contact[merge_field]
+            grouped_contacts[group_key].append(contact)
+            logging.info(
+                'Fetched contact with %s %s' % (merge_field, group_key))
         except Exception as e:
             logging.warning('Error in getting contact')
             logging.debug('Error: %s' % e.message)
@@ -60,7 +65,7 @@ def combine_set_values(items, key):
     return list(result)
 
 processed_contacts = open(args.results_filename[0], args.file_mode)
-for msisdn, contacts in grouped_contacts.iteritems():
+for group_key, contacts in grouped_contacts.iteritems():
     if len(contacts) <= 1:
         continue
 
@@ -74,7 +79,7 @@ for msisdn, contacts in grouped_contacts.iteritems():
             new_contact[field] = combine_dictionary_values(contacts, field)
         for field in settings.LIST_FIELDS:
             new_contact[field] = combine_set_values(contacts, field)
-        logging.info('Processed contact with MSISDN %s' % msisdn)
+        logging.info('Processed contact with %s %s' % (merge_field, group_key))
     except Exception as e:
         logging.error('Error processing contacts')
         logging.debug('Contacts: %s' % contacts)
